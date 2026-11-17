@@ -1,0 +1,404 @@
+{
+  "categories": [
+    {
+      "id": "dev-cache",
+      "glyph": "\uE943",
+      "nameCs": "Vývojářské a balíčkové cache",
+      "nameEn": "Developer and package caches",
+      "descriptionCs": "Globální mezipaměti správců balíčků. Smazání nepoškodí projekty, chybějící balíčky se při příštím buildu znovu stáhnou.",
+      "descriptionEn": "Global package manager caches. Deleting them does not damage projects; missing packages are downloaded again on the next build.",
+      "dynamic": false,
+      "rules": [
+        {
+          "path": "%USERPROFILE%\\.nuget\\packages",
+          "titleCs": "NuGet packages",
+          "titleEn": "NuGet packages",
+          "impactCs": "Smazané balíčky se při dalším buildu znovu stáhnou z nuget.org.",
+          "impactEn": "Deleted packages are downloaded again from nuget.org on the next build."
+        },
+        {
+          "path": "%LOCALAPPDATA%\\NuGet\\v3-cache",
+          "titleCs": "NuGet HTTP cache",
+          "titleEn": "NuGet HTTP cache",
+          "impactCs": "Pouze dočasné HTTP odpovědi. Projektů se nedotkne.",
+          "impactEn": "Only temporary HTTP responses. Projects are not affected."
+        },
+        {
+          "path": "%LOCALAPPDATA%\\npm-cache",
+          "titleCs": "npm cache",
+          "titleEn": "npm cache",
+          "impactCs": "Příští npm install stáhne balíčky znovu.",
+          "impactEn": "The next npm install downloads packages again.",
+          "processNames": ["node", "npm"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\pnpm-store",
+          "titleCs": "pnpm store",
+          "titleEn": "pnpm store",
+          "impactCs": "Příští pnpm install stáhne balíčky znovu.",
+          "impactEn": "The next pnpm install downloads packages again."
+        },
+        {
+          "path": "%LOCALAPPDATA%\\Yarn\\Cache",
+          "titleCs": "Yarn cache",
+          "titleEn": "Yarn cache",
+          "impactCs": "Příští yarn install stáhne balíčky znovu.",
+          "impactEn": "The next yarn install downloads packages again."
+        },
+        {
+          "path": "%USERPROFILE%\\.cargo\\registry\\cache",
+          "titleCs": "Cargo registry cache",
+          "titleEn": "Cargo registry cache",
+          "impactCs": "Archivy crate se při dalším cargo buildu znovu stáhnou.",
+          "impactEn": "Crate archives are downloaded again on the next cargo build."
+        },
+        {
+          "path": "%USERPROFILE%\\.cargo\\registry\\src",
+          "titleCs": "Cargo registry sources",
+          "titleEn": "Cargo registry sources",
+          "impactCs": "Rozbalené zdroje závislostí se znovu stáhnou při dalším cargo buildu.",
+          "impactEn": "Unpacked dependency sources are downloaded again on the next cargo build."
+        },
+        {
+          "path": "%LOCALAPPDATA%\\pip\\Cache",
+          "titleCs": "pip cache",
+          "titleEn": "pip cache",
+          "impactCs": "Příští pip install stáhne balíčky znovu.",
+          "impactEn": "The next pip install downloads packages again."
+        },
+        {
+          "path": "%USERPROFILE%\\.gradle\\caches",
+          "titleCs": "Gradle caches",
+          "titleEn": "Gradle caches",
+          "impactCs": "Příští Gradle build stáhne závislosti znovu, první build bude pomalejší.",
+          "impactEn": "The next Gradle build downloads dependencies again; the first build is slower."
+        },
+        {
+          "path": "%USERPROFILE%\\.m2\\repository",
+          "titleCs": "Maven repository",
+          "titleEn": "Maven repository",
+          "impactCs": "Příští Maven build stáhne závislosti znovu.",
+          "impactEn": "The next Maven build downloads dependencies again."
+        }
+      ]
+    },
+    {
+      "id": "build-artifacts",
+      "glyph": "\uE8F1",
+      "nameCs": "Buildovací artefakty",
+      "nameEn": "Build artifacts",
+      "descriptionCs": "Zkompilované binárky, mezivýsledky a lokální závislosti projektů nalezené na vybraném disku.",
+      "descriptionEn": "Compiled binaries, intermediate results and local project dependencies found on the selected drive.",
+      "dynamic": true,
+      "rules": []
+    },
+    {
+      "id": "app-cache",
+      "glyph": "\uE774",
+      "nameCs": "Cache aplikací, prohlížečů a shaderů",
+      "nameEn": "App, browser and shader caches",
+      "descriptionCs": "Dočasná data webových prohlížečů, Electron aplikací a zkompilované grafické shadery.",
+      "descriptionEn": "Temporary data of web browsers, Electron apps and compiled graphics shaders.",
+      "dynamic": false,
+      "rules": [
+        {
+          "path": "%LOCALAPPDATA%\\NVIDIA\\DXCache",
+          "titleCs": "NVIDIA DirectX shadery",
+          "titleEn": "NVIDIA DirectX shaders",
+          "impactCs": "Vyčistí staré shadery. U hraných her může při prvním spuštění způsobit krátké kompilování.",
+          "impactEn": "Clears old shaders. Games may compile shaders briefly on their next launch.",
+          "processNames": ["nvcontainer"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\NVIDIA\\GLCache",
+          "titleCs": "NVIDIA OpenGL shadery",
+          "titleEn": "NVIDIA OpenGL shaders",
+          "impactCs": "Vyčistí staré shadery. U hraných her může při prvním spuštění způsobit krátké kompilování.",
+          "impactEn": "Clears old shaders. Games may compile shaders briefly on their next launch.",
+          "processNames": ["nvcontainer"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\AMD\\DxCache",
+          "titleCs": "AMD DirectX shadery",
+          "titleEn": "AMD DirectX shaders",
+          "impactCs": "Vyčistí staré shadery. U hraných her může při prvním spuštění způsobit krátké kompilování.",
+          "impactEn": "Clears old shaders. Games may compile shaders briefly on their next launch."
+        },
+        {
+          "path": "%LOCALAPPDATA%\\D3DSCache",
+          "titleCs": "DirectX shader cache",
+          "titleEn": "DirectX shader cache",
+          "impactCs": "Vyčistí staré shadery. U hraných her může při prvním spuštění způsobit krátké kompilování.",
+          "impactEn": "Clears old shaders. Games may compile shaders briefly on their next launch."
+        },
+        {
+          "path": "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\Cache",
+          "titleCs": "Chrome – Cache",
+          "titleEn": "Chrome – Cache",
+          "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
+          "impactEn": "Deletes only temporary page files. It does not sign you out or delete passwords.",
+          "processNames": ["chrome"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\Code Cache",
+          "titleCs": "Chrome – Code Cache",
+          "titleEn": "Chrome – Code Cache",
+          "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
+          "impactEn": "Deletes only temporary page files. It does not sign you out or delete passwords.",
+          "processNames": ["chrome"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\GPUCache",
+          "titleCs": "Chrome – GPUCache",
+          "titleEn": "Chrome – GPUCache",
+          "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
+          "impactEn": "Deletes only temporary page files. It does not sign you out or delete passwords.",
+          "processNames": ["chrome"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\Default\\Cache",
+          "titleCs": "Edge – Cache",
+          "titleEn": "Edge – Cache",
+          "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
+          "impactEn": "Deletes only temporary page files. It does not sign you out or delete passwords.",
+          "processNames": ["msedge"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\Default\\Code Cache",
+          "titleCs": "Edge – Code Cache",
+          "titleEn": "Edge – Code Cache",
+          "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
+          "impactEn": "Deletes only temporary page files. It does not sign you out or delete passwords.",
+          "processNames": ["msedge"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\Default\\GPUCache",
+          "titleCs": "Edge – GPUCache",
+          "titleEn": "Edge – GPUCache",
+          "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
+          "impactEn": "Deletes only temporary page files. It does not sign you out or delete passwords.",
+          "processNames": ["msedge"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\Default\\Cache",
+          "titleCs": "Brave – Cache",
+          "titleEn": "Brave – Cache",
+          "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
+          "impactEn": "Deletes only temporary page files. It does not sign you out or delete passwords.",
+          "processNames": ["brave"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\Default\\Code Cache",
+          "titleCs": "Brave – Code Cache",
+          "titleEn": "Brave – Code Cache",
+          "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
+          "impactEn": "Deletes only temporary page files. It does not sign you out or delete passwords.",
+          "processNames": ["brave"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\Default\\GPUCache",
+          "titleCs": "Brave – GPUCache",
+          "titleEn": "Brave – GPUCache",
+          "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
+          "impactEn": "Deletes only temporary page files. It does not sign you out or delete passwords.",
+          "processNames": ["brave"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\Vivaldi\\User Data\\Default\\Cache",
+          "titleCs": "Vivaldi – Cache",
+          "titleEn": "Vivaldi – Cache",
+          "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
+          "impactEn": "Deletes only temporary page files. It does not sign you out or delete passwords.",
+          "processNames": ["vivaldi"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\Vivaldi\\User Data\\Default\\Code Cache",
+          "titleCs": "Vivaldi – Code Cache",
+          "titleEn": "Vivaldi – Code Cache",
+          "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
+          "impactEn": "Deletes only temporary page files. It does not sign you out or delete passwords.",
+          "processNames": ["vivaldi"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\Vivaldi\\User Data\\Default\\GPUCache",
+          "titleCs": "Vivaldi – GPUCache",
+          "titleEn": "Vivaldi – GPUCache",
+          "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
+          "impactEn": "Deletes only temporary page files. It does not sign you out or delete passwords.",
+          "processNames": ["vivaldi"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*\\cache2",
+          "titleCs": "Firefox – cache2",
+          "titleEn": "Firefox – cache2",
+          "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
+          "impactEn": "Deletes only temporary page files. It does not sign you out or delete passwords.",
+          "processNames": ["firefox"]
+        },
+        {
+          "path": "%APPDATA%\\discord\\Cache",
+          "titleCs": "Discord – Cache",
+          "titleEn": "Discord – Cache",
+          "impactCs": "Discord po startu znovu načte obrázky a média. Přihlášení zůstane.",
+          "impactEn": "Discord reloads images and media on start. You stay signed in.",
+          "processNames": ["Discord"]
+        },
+        {
+          "path": "%APPDATA%\\discord\\Code Cache",
+          "titleCs": "Discord – Code Cache",
+          "titleEn": "Discord – Code Cache",
+          "impactCs": "Discord po startu znovu načte obrázky a média. Přihlášení zůstane.",
+          "impactEn": "Discord reloads images and media on start. You stay signed in.",
+          "processNames": ["Discord"]
+        },
+        {
+          "path": "%APPDATA%\\discord\\GPUCache",
+          "titleCs": "Discord – GPUCache",
+          "titleEn": "Discord – GPUCache",
+          "impactCs": "Discord po startu znovu načte obrázky a média. Přihlášení zůstane.",
+          "impactEn": "Discord reloads images and media on start. You stay signed in.",
+          "processNames": ["Discord"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\Spotify\\Storage",
+          "titleCs": "Spotify – Storage",
+          "titleEn": "Spotify – Storage",
+          "impactCs": "Offline skladby se v případě potřeby znovu stáhnou.",
+          "impactEn": "Offline tracks are downloaded again when needed.",
+          "processNames": ["Spotify"]
+        },
+        {
+          "path": "%APPDATA%\\Code\\Cache",
+          "titleCs": "VS Code – Cache",
+          "titleEn": "VS Code – Cache",
+          "impactCs": "VS Code se při startu načte o něco pomaleji, nastavení a rozšíření zůstanou.",
+          "impactEn": "VS Code starts slightly slower once; settings and extensions remain.",
+          "processNames": ["Code"]
+        },
+        {
+          "path": "%APPDATA%\\Code\\CachedData",
+          "titleCs": "VS Code – CachedData",
+          "titleEn": "VS Code – CachedData",
+          "impactCs": "VS Code se při startu načte o něco pomaleji, nastavení a rozšíření zůstanou.",
+          "impactEn": "VS Code starts slightly slower once; settings and extensions remain.",
+          "processNames": ["Code"]
+        },
+        {
+          "path": "%APPDATA%\\Code\\CachedExtensionVSIXs",
+          "titleCs": "VS Code – CachedExtensionVSIXs",
+          "titleEn": "VS Code – CachedExtensionVSIXs",
+          "impactCs": "Instalační balíčky rozšíření se v případě potřeby znovu stáhnou.",
+          "impactEn": "Extension install packages are downloaded again when needed.",
+          "processNames": ["Code"]
+        },
+        {
+          "path": "%LOCALAPPDATA%\\BambuStudio\\cache",
+          "titleCs": "Bambu Studio – cache",
+          "titleEn": "Bambu Studio – cache",
+          "impactCs": "Náhledy a stažené profily se znovu načtou z cloudu.",
+          "impactEn": "Previews and downloaded profiles are fetched from the cloud again."
+        }
+      ]
+    },
+    {
+      "id": "docker",
+      "glyph": "\uE7B8",
+      "nameCs": "Kontejnery a virtualizace (Docker)",
+      "nameEn": "Containers and virtualization (Docker)",
+      "descriptionCs": "Nepoužívané Docker image, zastavené kontejnery a build cache.",
+      "descriptionEn": "Unused Docker images, stopped containers and build cache.",
+      "dynamic": true,
+      "rules": []
+    },
+    {
+      "id": "installers-logs",
+      "glyph": "\uE74D",
+      "nameCs": "Rozbalené instalátory, logy a koš",
+      "nameEn": "Unpacked installers, logs and recycle bin",
+      "descriptionCs": "Pozůstatky po instalacích ovladačů, výpisy pádů aplikací a koš na vybraném disku.",
+      "descriptionEn": "Leftovers from driver installs, application crash dumps and the recycle bin on the selected drive.",
+      "dynamic": false,
+      "rules": [
+        {
+          "path": "{drive}NVIDIA",
+          "titleCs": "NVIDIA instalátory",
+          "titleEn": "NVIDIA installers",
+          "impactCs": "Rozbalené instalační soubory ovladačů. Ovladač zůstane nainstalovaný.",
+          "impactEn": "Unpacked driver installer files. The installed driver remains untouched."
+        },
+        {
+          "path": "{drive}AMD",
+          "titleCs": "AMD instalátory",
+          "titleEn": "AMD installers",
+          "impactCs": "Rozbalené instalační soubory ovladačů. Ovladač zůstane nainstalovaný.",
+          "impactEn": "Unpacked driver installer files. The installed driver remains untouched."
+        },
+        {
+          "path": "{drive}Intel",
+          "titleCs": "Intel instalátory",
+          "titleEn": "Intel installers",
+          "impactCs": "Rozbalené instalační soubory ovladačů. Ovladač zůstane nainstalovaný.",
+          "impactEn": "Unpacked driver installer files. The installed driver remains untouched."
+        },
+        {
+          "path": "%LOCALAPPDATA%\\CrashDumps",
+          "titleCs": "Výpisy pádů aplikací",
+          "titleEn": "Application crash dumps",
+          "impactCs": "Smazáním přijdete o historické diagnostické výpisy pádů.",
+          "impactEn": "Deleting removes historical crash diagnostics."
+        },
+        {
+          "path": "%WINDIR%\\Minidump",
+          "titleCs": "Minidumpy systému",
+          "titleEn": "System minidumps",
+          "impactCs": "Smazáním přijdete o výpisy modré obrazovky. Vyžaduje oprávnění správce.",
+          "impactEn": "Deleting removes blue-screen dumps. Requires administrator rights."
+        },
+        {
+          "path": "%WINDIR%\\Logs",
+          "titleCs": "Logy systému Windows",
+          "titleEn": "Windows system logs",
+          "impactCs": "Diagnostické logy Windows. Smazání neovlivní běh systému, jen ztíží hledání příčin potíží.",
+          "impactEn": "Windows diagnostic logs. Deleting does not affect operation, only future troubleshooting.",
+          "defaultChecked": false
+        },
+        {
+          "path": "{drive}$Recycle.Bin",
+          "titleCs": "Koš na tomto disku",
+          "titleEn": "Recycle bin on this drive",
+          "impactCs": "Trvale odstraní soubory z koše. Obnovení už nebude možné.",
+          "impactEn": "Permanently removes files from the recycle bin. They can no longer be restored.",
+          "kind": "recyclebin",
+          "defaultChecked": false
+        }
+      ]
+    },
+    {
+      "id": "temp",
+      "glyph": "\uE8B7",
+      "nameCs": "Dočasné složky (Temp)",
+      "nameEn": "Temporary folders (Temp)",
+      "descriptionCs": "Dočasné pracovní soubory systému a aplikací.",
+      "descriptionEn": "Temporary working files of the system and applications.",
+      "dynamic": false,
+      "rules": [
+        {
+          "path": "%TEMP%",
+          "titleCs": "Uživatelská dočasná složka",
+          "titleEn": "User temp folder",
+          "impactCs": "Soubory mladší 24 hodin jsou ve výchozím stavu přeskočeny, aby nedošlo k přerušení běžících aplikací.",
+          "impactEn": "Files younger than 24 hours are skipped by default so running applications are not interrupted.",
+          "minAgeHours": 24
+        },
+        {
+          "path": "%WINDIR%\\Temp",
+          "titleCs": "Systémová dočasná složka",
+          "titleEn": "System temp folder",
+          "impactCs": "Soubory mladší 24 hodin jsou ve výchozím stavu přeskočeny, aby nedošlo k přerušení běžících aplikací.",
+          "impactEn": "Files younger than 24 hours are skipped by default so running applications are not interrupted.",
+          "minAgeHours": 24
+        }
+      ]
+    }
+  ]
+}

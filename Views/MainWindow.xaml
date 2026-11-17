@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="DiskCleaner.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid x:Name="RootGrid" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Custom title bar (Mica shows through). -->
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Height="32" Background="Transparent">
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="16,0,0,0" VerticalAlignment="Center">
+                <FontIcon Glyph="&#xE74D;" FontSize="12" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                <TextBlock Text="DiskCleaner" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Top bar: drive, scan, cancel, settings, progress. -->
+        <Border Grid.Row="1"
+                Padding="16,12"
+                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                BorderThickness="0,0,0,1"
+                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
+            <StackPanel Spacing="8">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{Binding DriveLabelText}"
+                               VerticalAlignment="Center"
+                               FontWeight="SemiBold" />
+                    <ComboBox Width="430"
+                              ItemsSource="{Binding Drives}"
+                              SelectedItem="{Binding SelectedDrive, Mode=TwoWay}"
+                              DisplayMemberPath="Display"
+                              IsEnabled="{Binding CanInteract}" />
+                    <Button Content="{Binding ScanButtonText}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Click="ScanButton_Click"
+                            IsEnabled="{Binding CanStartScan}" />
+                    <Button Content="{Binding CancelButtonText}"
+                            Click="CancelButton_Click"
+                            Visibility="{Binding CancelVisibility}" />
+                    <Button ToolTipService.ToolTip="{Binding SettingsText}">
+                        <Button.Content>
+                            <FontIcon Glyph="&#xE713;" FontSize="14" />
+                        </Button.Content>
+                        <Button.Flyout>
+                            <Flyout>
+                                <StackPanel Spacing="8" MinWidth="240">
+                                    <TextBlock Text="{Binding LanguageLabelText}" FontWeight="SemiBold" />
+                                    <ComboBox SelectedIndex="{Binding SelectedLanguageIndex, Mode=TwoWay}"
+                                              HorizontalAlignment="Stretch">
+                                        <ComboBoxItem Content="Čeština" />
+                                        <ComboBoxItem Content="English" />
+                                    </ComboBox>
+                                    <TextBlock Text="DiskCleaner 1.0"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                    <ProgressRing Width="20"
+                                  Height="20"
+                                  IsActive="{Binding IsScanning}"
+                                  Visibility="{Binding ScanProgressVisibility}" />
+                </StackPanel>
+                <TextBlock Text="{Binding StatusText}"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+        </Border>
+
+        <!-- Categories. -->
+        <ScrollViewer Grid.Row="2"
+                      Padding="16,12,16,20"
+                      HorizontalScrollMode="Disabled"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <TextBlock Text="{Binding EmptyStateText}"
+                           Visibility="{Binding EmptyStateVisibility}"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           MaxWidth="460"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+                <StackPanel Visibility="{Binding ScanningStateVisibility}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="12"
+                            MaxWidth="460">
+                    <ProgressRing Width="32"
+                                  Height="32"
+                                  IsActive="{Binding IsScanning}" />
+                    <TextBlock Text="{Binding ScanningStateText}"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+
+                <ItemsRepeater ItemsSource="{Binding Categories}" HorizontalAlignment="Stretch">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="8" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate>
+                            <Expander HorizontalAlignment="Stretch"
+                                      HorizontalContentAlignment="Stretch"
+                                      IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
+                                      Margin="0,0,0,4">
+                                <Expander.Header>
+                                    <Grid ColumnSpacing="12" Padding="0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <CheckBox Grid.Column="0"
+                                                  IsThreeState="True"
+                                                  MinWidth="0"
+                                                  IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                  VerticalAlignment="Center" />
+
+                                        <FontIcon Grid.Column="1"
+                                                  Glyph="{Binding Glyph}"
+                                                  FontSize="18"
+                                                  VerticalAlignment="Center" />
+
+                                        <StackPanel Grid.Column="2" Spacing="2">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding Description}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+
+                                        <Border Grid.Column="3"
+                                                Background="{ThemeResource ControlStrokeColorDefaultBrush}"
+                                                CornerRadius="9"
+                                                Padding="8,2"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding ItemCountText}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}" />
+                                        </Border>
+
+                                        <TextBlock Grid.Column="4"
+                                                   Text="{Binding SelectedSizeFormatted}"
+                                                   FontWeight="SemiBold"
+                                                   VerticalAlignment="Center" />
+                                    </Grid>
+                                </Expander.Header>
+
+                                <ItemsRepeater ItemsSource="{Binding Items}" HorizontalAlignment="Stretch">
+                                    <ItemsRepeater.Layout>
+                                        <StackLayout Spacing="6" />
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="6"
+                                                    Padding="12">
+                                                <Grid ColumnSpacing="12">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <CheckBox Grid.Column="0"
+                                                              MinWidth="0"
+                                                              VerticalAlignment="Top"
+                                                              IsChecked="{Binding IsChecked, Mode=TwoWay}" />
+
+                                                    <StackPanel Grid.Column="1" Spacing="4">
+                                                        <TextBlock Text="{Binding Title}"
+                                                                   FontWeight="SemiBold"
+                                                                   TextWrapping="Wrap" />
+                                                        <TextBlock Text="{Binding Path}"
+                                                                   FontFamily="Consolas"
+                                                                   FontSize="12"
+                                                                   IsTextSelectionEnabled="True"
+                                                                   TextWrapping="Wrap"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                        <TextBlock Text="{Binding ImpactNote}"
+                                                                   FontSize="12"
+                                                                   TextWrapping="Wrap"
+                                                                   Foreground="{ThemeResource SystemFillColorCautionBrush}" />
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    Spacing="6"
+                                                                    Visibility="{Binding WarningVisibility}">
+                                                            <FontIcon Glyph="&#xE7BA;"
+                                                                      FontSize="12"
+                                                                      Foreground="{ThemeResource SystemFillColorCautionBrush}" />
+                                                            <TextBlock Text="{Binding WarningText}"
+                                                                       FontSize="12"
+                                                                       Foreground="{ThemeResource SystemFillColorCautionBrush}" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="2" Spacing="6">
+                                                        <TextBlock Text="{Binding FormattedSize}"
+                                                                   FontWeight="SemiBold"
+                                                                   HorizontalAlignment="Right" />
+                                                        <Button Command="{Binding OpenFolderCommand}"
+                                                                ToolTipService.ToolTip="{Binding OpenFolderTooltip}"
+                                                                Padding="8"
+                                                                HorizontalAlignment="Right">
+                                                            <FontIcon Glyph="&#xE8B7;" FontSize="14" />
+                                                        </Button>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+                            </Expander>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- Bottom action bar. -->
+        <Border Grid.Row="3"
+                Padding="16,12"
+                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                    <CheckBox Content="{Binding DryRunText}"
+                              IsChecked="{Binding DryRun, Mode=TwoWay}"
+                              IsEnabled="{Binding CanInteract}" />
+                    <CheckBox Content="{Binding RecycleBinText}"
+                              IsChecked="{Binding UseRecycleBin, Mode=TwoWay}"
+                              IsEnabled="{Binding CanInteract}" />
+                    <CheckBox Content="{Binding IncludeRecentText}"
+                              IsChecked="{Binding IncludeRecentFiles, Mode=TwoWay}"
+                              IsEnabled="{Binding CanStartScan}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding TotalSelectedText}"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Right" />
+                    <Button Content="{Binding CleanButtonText}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Click="CleanButton_Click"
+                            IsEnabled="{Binding CanClean}"
+                            HorizontalAlignment="Right" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
