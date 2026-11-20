@@ -53,7 +53,7 @@ public sealed partial class MainViewModel : ObservableObject
     private bool _isScanning;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanStartScan), nameof(CanInteract), nameof(CanClean))]
+    [NotifyPropertyChangedFor(nameof(CanStartScan), nameof(CanInteract), nameof(CanClean), nameof(CancelVisibility))]
     private bool _isCleaning;
 
     [ObservableProperty]
@@ -85,7 +85,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public Visibility ScanProgressVisibility => IsScanning ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility CancelVisibility => IsScanning ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility CancelVisibility => IsScanning || IsCleaning ? Visibility.Visible : Visibility.Collapsed;
 
     public Visibility EmptyStateVisibility =>
         !IsScanning && !HasFindings ? Visibility.Visible : Visibility.Collapsed;
@@ -215,9 +215,10 @@ public sealed partial class MainViewModel : ObservableObject
         var driveRoot = SelectedDrive.RootPath;
 
         Categories.Clear();
+        var running = RunningProcesses.Capture();
         foreach (var definition in _scanner.Definitions)
         {
-            Categories.Add(new CleanCategoryViewModel(definition, OnSelectionChanged));
+            Categories.Add(new CleanCategoryViewModel(definition, running, OnSelectionChanged));
         }
 
         RecalculateTotal();
@@ -244,6 +245,9 @@ public sealed partial class MainViewModel : ObservableObject
         }
         catch (OperationCanceledException)
         {
+            // Partial findings would let the user clean an incomplete cache, so they are dropped.
+            Categories.Clear();
+            RecalculateTotal();
             StatusText = Localization.Pick("Skenování bylo zrušeno.", "The scan was cancelled.");
         }
         catch (Exception ex)
@@ -260,6 +264,13 @@ public sealed partial class MainViewModel : ObservableObject
 
     public void CancelScan()
     {
+        if (IsCleaning)
+        {
+            _cancellation?.Cancel();
+            StatusText = Localization.Pick("Ruším čištění…", "Cancelling the cleaning…");
+            return;
+        }
+
         if (IsScanning)
         {
             _cancellation?.Cancel();
@@ -361,6 +372,11 @@ public sealed partial class MainViewModel : ObservableObject
                     $"Vyčištěno {Format.Bytes(result.FreedBytes)}, přeskočeno {result.SkippedFiles} souborů.",
                     $"Freed {Format.Bytes(result.FreedBytes)}, skipped {result.SkippedFiles} files.");
 
+            if (!DryRun)
+            {
+                RemoveCleanedItems(targets);
+            }
+
             return result;
         }
         catch (OperationCanceledException)
@@ -378,7 +394,22 @@ public sealed partial class MainViewModel : ObservableObject
             IsCleaning = false;
             _cancellation?.Dispose();
             _cancellation = null;
+
+            // Free space on the drive changed, so the picker texts must be rebuilt.
+            LoadDrives();
         }
+    }
+
+    /// <summary>After a real clean the folders are gone, so drop them instead of showing old sizes.</summary>
+    private void RemoveCleanedItems(IReadOnlyList<CleanTarget> targets)
+    {
+        var cleaned = new HashSet<string>(targets.Select(target => target.Path), StringComparer.OrdinalIgnoreCase);
+        foreach (var category in Categories)
+        {
+            category.RemoveItems(cleaned);
+        }
+
+        RecalculateTotal();
     }
 
     public string BuildResultText(CleanResult result)
@@ -446,6 +477,17 @@ public sealed partial class MainViewModel : ObservableObject
     {
         Localization.Language = value == 1 ? AppLanguage.English : AppLanguage.Czech;
         RefreshLanguage();
+    }
+
+    /// <summary>The 24 hour cutoff is applied while measuring, so a finished scan keeps its old numbers.</summary>
+    partial void OnIncludeRecentFilesChanged(bool value)
+    {
+        if (!IsScanning && !IsCleaning && HasFindings)
+        {
+            StatusText = Localization.Pick(
+                "Změna se projeví až při dalším skenování.",
+                "The change takes effect on the next scan.");
+        }
     }
 
     private void RefreshLanguage()

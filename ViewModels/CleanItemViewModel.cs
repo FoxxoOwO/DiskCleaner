@@ -10,15 +10,17 @@ namespace DiskCleaner.ViewModels;
 public sealed partial class CleanItemViewModel : ObservableObject
 {
     private readonly ScanItem _item;
+    private readonly RunningProcesses _running;
     private bool _isChecked;
     private bool _silent;
 
-    public CleanItemViewModel(ScanItem item, Action<CleanItemViewModel>? selectionChanged = null)
+    public CleanItemViewModel(ScanItem item, RunningProcesses running, Action<CleanItemViewModel>? selectionChanged = null)
     {
         _item = item;
+        _running = running;
         _isChecked = item.DefaultChecked;
         SelectionChanged = selectionChanged;
-        IsProcessRunning = DetectProcess(item.ProcessNames);
+        IsProcessRunning = running.IsRunning(item.ProcessNames);
         OpenFolderCommand = new RelayCommand(OpenFolder);
     }
 
@@ -89,36 +91,5 @@ public sealed partial class CleanItemViewModel : ObservableObject
         {
             // Explorer refusing to open a path is not worth an error dialog.
         }
-    }
-
-    private static bool DetectProcess(string[] names)
-    {
-        foreach (var name in names)
-        {
-            try
-            {
-                var matches = Process.GetProcessesByName(name);
-                try
-                {
-                    if (matches.Length > 0)
-                    {
-                        return true;
-                    }
-                }
-                finally
-                {
-                    foreach (var match in matches)
-                    {
-                        match.Dispose();
-                    }
-                }
-            }
-            catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception)
-            {
-                // Treat an unqueryable process name as not running.
-            }
-        }
-
-        return false;
     }
 }

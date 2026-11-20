@@ -45,6 +45,12 @@ public sealed partial class MainWindow : Window
         ViewModel.CancelScan();
     }
 
+    /// <summary>The expander toggles on any tap in its header, which would fight the category checkbox.</summary>
+    private void HeaderCheckBox_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+    {
+        e.Handled = true;
+    }
+
     private async void CleanButton_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.BuildTargets().Count == 0)

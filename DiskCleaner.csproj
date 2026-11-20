@@ -6,7 +6,9 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>DiskCleaner</RootNamespace>
     <AssemblyName>DiskCleaner</AssemblyName>
+    <Version>0.0.1</Version>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <Platforms>x64;x86;ARM64</Platforms>
     <!-- WinUI self-contained cannot build AnyCPU; make a plain `dotnet build` pick the host-shaped x64 build. -->
     <Platform Condition="'$(Platform)' == 'AnyCPU' or '$(Platform)' == ''">x64</Platform>
@@ -22,11 +24,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.*" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.*" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250602001" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
     <!-- Supplies the MRT Core / PRI MSBuild task assembly (WinAppSdkGenerateProjectPriFile,
          WinAppSdkExpandPayloadDirectories, ...) that MrtCore.PriGen.targets requires. -->
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.261102100" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The checks project lives in this tree; keep its sources out of the app compile. -->
+    <Compile Remove="tests\**" />
+    <None Remove="tests\**" />
+    <Content Remove="tests\**" />
   </ItemGroup>
 
   <ItemGroup>

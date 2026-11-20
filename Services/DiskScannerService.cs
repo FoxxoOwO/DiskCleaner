@@ -42,8 +42,16 @@ public sealed class DiskScannerService : IDiskScannerService
             cancellationToken.ThrowIfCancellationRequested();
             var category = new ScanCategory(definition);
 
+            var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             void Add(ScanItem item)
             {
+                // Overlapping rules (%TEMP% and C:\Windows\Temp, Cargo registry cache and src) can resolve to the same folder.
+                if (!seenPaths.Add(item.Path))
+                {
+                    return;
+                }
+
                 category.Add(item);
                 itemProgress.Report(new ScanItemFound(definition.Id, item));
             }
@@ -163,9 +171,8 @@ public sealed class DiskScannerService : IDiskScannerService
                     continue;
                 }
 
-                var separator = path.IndexOf('*', StringComparison.Ordinal) is var index
-                    ? path.LastIndexOf(System.IO.Path.DirectorySeparatorChar, index)
-                    : -1;
+                var star = path.IndexOf('*', StringComparison.Ordinal);
+                var separator = path.LastIndexOf(System.IO.Path.DirectorySeparatorChar, star);
                 if (separator < 0)
                 {
                     expanded.Add(path);
@@ -316,8 +323,18 @@ public sealed class DiskScannerService : IDiskScannerService
                     continue;
                 }
 
-                Visit(directory);
-                Interlocked.Decrement(ref outstanding);
+                try
+                {
+                    Visit(directory);
+                }
+                catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException or System.Security.SecurityException or ArgumentException)
+                {
+                    // One unreadable folder must not abort the walk, and the counter below must still move on.
+                }
+                finally
+                {
+                    Interlocked.Decrement(ref outstanding);
+                }
             }
         }
 

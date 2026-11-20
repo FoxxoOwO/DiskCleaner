@@ -130,11 +130,28 @@ public sealed class DockerCliService
         return factor == 0 ? 0 : (long)(number * factor);
     }
 
+    /// <summary>Reads the "Total reclaimed space" line that <c>docker … prune</c> prints last.</summary>
+    public static long ParseReclaimed(IReadOnlyList<string> output)
+    {
+        const string marker = "Total reclaimed space:";
+        foreach (var line in output)
+        {
+            var index = line.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+            if (index >= 0)
+            {
+                return ParseReclaimable(line[(index + marker.Length)..]);
+            }
+        }
+
+        return 0;
+    }
+
     private static async Task<string?> RunAsync(string args, CancellationToken cancellationToken)
     {
+        Process? process = null;
         try
         {
-            using var process = Process.Start(new ProcessStartInfo("docker", args)
+            process = Process.Start(new ProcessStartInfo("docker", args)
             {
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -148,13 +165,35 @@ public sealed class DockerCliService
 
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             timeout.CancelAfter(TimeSpan.FromSeconds(60));
-            var stdout = await process.StandardOutput.ReadToEndAsync(timeout.Token).ConfigureAwait(false);
+
+            // Both pipes must be drained concurrently, otherwise a chatty stderr deadlocks the read.
+            var stdoutTask = process.StandardOutput.ReadToEndAsync(timeout.Token);
+            var stderrTask = process.StandardError.ReadToEndAsync(timeout.Token);
+            var stdout = await stdoutTask.ConfigureAwait(false);
+            await stderrTask.ConfigureAwait(false);
             await process.WaitForExitAsync(timeout.Token).ConfigureAwait(false);
             return process.ExitCode == 0 ? stdout : null;
         }
-        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or OperationCanceledException or InvalidOperationException)
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or OperationCanceledException
+                                       or InvalidOperationException or IOException)
         {
+            try
+            {
+                if (process is { HasExited: false })
+                {
+                    process.Kill(true);
+                }
+            }
+            catch (Exception killEx) when (killEx is InvalidOperationException or System.ComponentModel.Win32Exception)
+            {
+                // Already gone; nothing to clean up.
+            }
+
             return null;
+        }
+        finally
+        {
+            process?.Dispose();
         }
     }
 }

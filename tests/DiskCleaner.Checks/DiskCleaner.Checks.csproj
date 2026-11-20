@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>DiskCleaner.Checks</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <!-- The app project is a self-contained WinUI executable, so the models and the WinUI-free services
+       are compiled straight into this console runner instead of being referenced. -->
+  <ItemGroup>
+    <Compile Include="..\..\Models\*.cs" />
+    <Compile Include="..\..\Services\DiskScannerService.cs" />
+    <Compile Include="..\..\Services\CleanerExecutionService.cs" />
+    <Compile Include="..\..\Services\DockerCliService.cs" />
+    <Compile Include="..\..\Services\IDiskScannerService.cs" />
+    <Compile Include="..\..\Services\ICleanerExecutionService.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Assets\rules.json" Link="Assets\rules.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

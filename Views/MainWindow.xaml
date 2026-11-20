@@ -35,6 +35,7 @@
                                VerticalAlignment="Center"
                                FontWeight="SemiBold" />
                     <ComboBox Width="430"
+                              AutomationProperties.Name="{Binding DriveLabelText}"
                               ItemsSource="{Binding Drives}"
                               SelectedItem="{Binding SelectedDrive, Mode=TwoWay}"
                               DisplayMemberPath="Display"
@@ -46,7 +47,8 @@
                     <Button Content="{Binding CancelButtonText}"
                             Click="CancelButton_Click"
                             Visibility="{Binding CancelVisibility}" />
-                    <Button ToolTipService.ToolTip="{Binding SettingsText}">
+                    <Button ToolTipService.ToolTip="{Binding SettingsText}"
+                            AutomationProperties.Name="{Binding SettingsText}">
                         <Button.Content>
                             <FontIcon Glyph="&#xE713;" FontSize="14" />
                         </Button.Content>
@@ -115,6 +117,7 @@
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
                             <Expander HorizontalAlignment="Stretch"
+                                      Visibility="{Binding CategoryVisibility}"
                                       HorizontalContentAlignment="Stretch"
                                       IsExpanded="{Binding IsExpanded, Mode=TwoWay}"
                                       Margin="0,0,0,4">
@@ -131,6 +134,8 @@
                                         <CheckBox Grid.Column="0"
                                                   IsThreeState="True"
                                                   MinWidth="0"
+                                                  AutomationProperties.Name="{Binding Name}"
+                                                  Tapped="HeaderCheckBox_Tapped"
                                                   IsChecked="{Binding IsChecked, Mode=TwoWay}"
                                                   VerticalAlignment="Center" />
 
@@ -184,6 +189,7 @@
                                                     <CheckBox Grid.Column="0"
                                                               MinWidth="0"
                                                               VerticalAlignment="Top"
+                                                              AutomationProperties.Name="{Binding Title}"
                                                               IsChecked="{Binding IsChecked, Mode=TwoWay}" />
 
                                                     <StackPanel Grid.Column="1" Spacing="4">
@@ -218,6 +224,7 @@
                                                                    HorizontalAlignment="Right" />
                                                         <Button Command="{Binding OpenFolderCommand}"
                                                                 ToolTipService.ToolTip="{Binding OpenFolderTooltip}"
+                                                                AutomationProperties.Name="{Binding OpenFolderTooltip}"
                                                                 Padding="8"
                                                                 HorizontalAlignment="Right">
                                                             <FontIcon Glyph="&#xE8B7;" FontSize="14" />

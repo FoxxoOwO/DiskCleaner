@@ -11,6 +11,8 @@ public sealed class CleanerExecutionService : ICleanerExecutionService
     private const uint SHERB_NOPROGRESSUI = 0x00000002;
     private const uint SHERB_NOSOUND = 0x00000004;
 
+    private const int DryRunLogLimit = 5000;
+
     private const ushort FO_DELETE = 0x0003;
     private const ushort FOF_ALLOWUNDO = 0x0040;
     private const ushort FOF_NOCONFIRMATION = 0x0010;
@@ -50,7 +52,8 @@ public sealed class CleanerExecutionService : ICleanerExecutionService
                     case "recyclebin":
                         if (dryRun)
                         {
-                            result.Log.Add($"[dry] recycle bin {driveRoot}");
+                            result.FreedBytes += target.Bytes;
+                            result.Log.Add($"[dry] recycle bin {driveRoot}: {Format.Bytes(target.Bytes)}");
                         }
                         else if (SHEmptyRecycleBin(IntPtr.Zero, driveRoot,
                                      SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND) == 0)
@@ -71,12 +74,15 @@ public sealed class CleanerExecutionService : ICleanerExecutionService
                     case DockerCliService.ContainersKind:
                         if (dryRun)
                         {
-                            result.Log.Add($"[dry] docker prune {target.Kind}");
+                            result.FreedBytes += target.Bytes;
+                            result.Log.Add($"[dry] docker prune {target.Kind}: {Format.Bytes(target.Bytes)}");
                             break;
                         }
 
                         var output = await _docker.PruneAsync(target.Kind, cancellationToken).ConfigureAwait(false);
-                        result.FreedBytes += target.Bytes;
+                        var reclaimed = DockerCliService.ParseReclaimed(output);
+                        result.FreedBytes += reclaimed;
+                        result.Log.Add($"docker prune {target.Kind}: {Format.Bytes(reclaimed)} reclaimed");
                         foreach (var line in output)
                         {
                             result.Log.Add($"docker prune {target.Kind}: {line}");
@@ -122,9 +128,18 @@ public sealed class CleanerExecutionService : ICleanerExecutionService
         {
             foreach (var file in EnumerateFiles(target.Path, cutoff))
             {
-                result.Log.Add($"[dry] {file.FullName}");
+                if (result.Log.Count < DryRunLogLimit)
+                {
+                    result.Log.Add($"[dry] {file.FullName}");
+                }
+
                 result.DeletedItems++;
-                result.FreedBytes += file.Length;
+                result.FreedBytes += SafeLength(file);
+            }
+
+            if (result.DeletedItems > DryRunLogLimit)
+            {
+                result.Log.Add($"[dry] … {result.DeletedItems - DryRunLogLimit} more entries not listed");
             }
 
             return;
@@ -132,16 +147,44 @@ public sealed class CleanerExecutionService : ICleanerExecutionService
 
         if (useRecycleBin)
         {
-            var code = MoveToRecycleBin(target.Path);
-            if (code == 0)
+            // A folder with a cutoff (Temp) must never be moved wholesale: files inside the cutoff stay.
+            var files = cutoff == DateTime.MinValue ? null : EnumerateFiles(target.Path, cutoff).ToList();
+            var paths = files is null
+                ? new List<string> { target.Path }
+                : files.Select(file => file.FullName).ToList();
+
+            if (paths.Count == 0)
             {
-                result.FreedBytes += target.Bytes;
-                result.DeletedItems++;
-                result.Log.Add($"recycled {target.Path}");
                 return;
             }
 
-            result.Log.Add($"recycle failed (0x{code:X}) for {target.Path}, deleting permanently");
+            var code = MoveToRecycleBin(paths);
+            if (code == 0)
+            {
+                if (files is null)
+                {
+                    result.FreedBytes += target.Bytes;
+                    result.DeletedItems++;
+                    result.Log.Add($"recycled {target.Path}");
+                }
+                else
+                {
+                    foreach (var file in files)
+                    {
+                        result.FreedBytes += SafeLength(file);
+                        result.DeletedItems++;
+                    }
+
+                    result.Log.Add($"recycled {files.Count} files in {target.Path}");
+                    RemoveEmptyDirectories(target.Path);
+                }
+
+                return;
+            }
+
+            result.SkippedFiles++;
+            result.Log.Add($"recycle failed (0x{code:X}) for {target.Path}, skipped");
+            return;
         }
 
         foreach (var file in EnumerateFiles(target.Path, cutoff))
@@ -165,26 +208,34 @@ public sealed class CleanerExecutionService : ICleanerExecutionService
 
     private static IEnumerable<FileInfo> EnumerateFiles(string path, DateTime cutoff)
     {
-        FileInfo[] files;
+        IEnumerable<FileInfo> sequence;
         try
         {
-            files = new DirectoryInfo(path).GetFiles("*", Options);
+            sequence = new DirectoryInfo(path).EnumerateFiles("*", Options);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
         {
             yield break;
         }
 
-        foreach (var file in files)
+        using var enumerator = sequence.GetEnumerator();
+        while (true)
         {
+            FileInfo file;
             bool skip;
             try
             {
+                if (!enumerator.MoveNext())
+                {
+                    yield break;
+                }
+
+                file = enumerator.Current;
                 skip = cutoff != DateTime.MinValue && file.LastWriteTimeUtc > cutoff;
             }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
             {
-                skip = true;
+                yield break;
             }
 
             if (!skip)
@@ -194,40 +245,26 @@ public sealed class CleanerExecutionService : ICleanerExecutionService
         }
     }
 
+    private static long SafeLength(FileInfo file)
+    {
+        try
+        {
+            return file.Length;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return 0;
+        }
+    }
+
     /// <summary>Removes empty directories deepest-first so a folder that still holds locked files survives.</summary>
     private static void RemoveEmptyDirectories(string path)
     {
-        DirectoryInfo[] directories;
         try
         {
-            directories = new DirectoryInfo(path).GetDirectories("*", Options);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
-        {
-            directories = Array.Empty<DirectoryInfo>();
-        }
-
-        foreach (var directory in directories.OrderByDescending(d => d.FullName.Length))
-        {
-            try
+            if (Directory.Exists(path))
             {
-                if (!directory.EnumerateFileSystemInfos().Any())
-                {
-                    directory.Delete(false);
-                }
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
-            {
-                // A locked or non-empty directory stays behind.
-            }
-        }
-
-        try
-        {
-            var root = new DirectoryInfo(path);
-            if (root.Exists && !root.EnumerateFileSystemInfos().Any())
-            {
-                root.Delete(false);
+                RemoveIfEmpty(new DirectoryInfo(path));
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
@@ -236,9 +273,54 @@ public sealed class CleanerExecutionService : ICleanerExecutionService
         }
     }
 
-    private static int MoveToRecycleBin(string path)
+    /// <summary>Recursive post-order delete: a directory goes only after its now-empty children.</summary>
+    private static bool RemoveIfEmpty(DirectoryInfo directory)
     {
-        var from = path + '\0' + '\0';
+        FileSystemInfo[] entries;
+        try
+        {
+            entries = directory.GetFileSystemInfos();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {
+            return false;
+        }
+
+        var empty = true;
+        foreach (var entry in entries)
+        {
+            if (entry is DirectoryInfo child)
+            {
+                if (!RemoveIfEmpty(child))
+                {
+                    empty = false;
+                }
+            }
+            else
+            {
+                empty = false;
+            }
+        }
+
+        if (!empty)
+        {
+            return false;
+        }
+
+        try
+        {
+            directory.Delete(false);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {
+            return false;
+        }
+    }
+
+    private static int MoveToRecycleBin(IReadOnlyCollection<string> paths)
+    {
+        var from = string.Join('\0', paths) + '\0' + '\0';
         var operation = new ShFileOpStruct
         {
             wFunc = FO_DELETE,

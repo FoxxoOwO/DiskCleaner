@@ -14,7 +14,8 @@
           "titleCs": "NuGet packages",
           "titleEn": "NuGet packages",
           "impactCs": "Smazané balíčky se při dalším buildu znovu stáhnou z nuget.org.",
-          "impactEn": "Deleted packages are downloaded again from nuget.org on the next build."
+          "impactEn": "Deleted packages are downloaded again from nuget.org on the next build.",
+          "processNames": ["dotnet", "MSBuild", "devenv"]
         },
         {
           "path": "%LOCALAPPDATA%\\NuGet\\v3-cache",
@@ -50,35 +51,40 @@
           "titleCs": "Cargo registry cache",
           "titleEn": "Cargo registry cache",
           "impactCs": "Archivy crate se při dalším cargo buildu znovu stáhnou.",
-          "impactEn": "Crate archives are downloaded again on the next cargo build."
+          "impactEn": "Crate archives are downloaded again on the next cargo build.",
+          "processNames": ["cargo", "rustc"]
         },
         {
           "path": "%USERPROFILE%\\.cargo\\registry\\src",
           "titleCs": "Cargo registry sources",
           "titleEn": "Cargo registry sources",
           "impactCs": "Rozbalené zdroje závislostí se znovu stáhnou při dalším cargo buildu.",
-          "impactEn": "Unpacked dependency sources are downloaded again on the next cargo build."
+          "impactEn": "Unpacked dependency sources are downloaded again on the next cargo build.",
+          "processNames": ["cargo", "rustc"]
         },
         {
           "path": "%LOCALAPPDATA%\\pip\\Cache",
           "titleCs": "pip cache",
           "titleEn": "pip cache",
           "impactCs": "Příští pip install stáhne balíčky znovu.",
-          "impactEn": "The next pip install downloads packages again."
+          "impactEn": "The next pip install downloads packages again.",
+          "processNames": ["python"]
         },
         {
           "path": "%USERPROFILE%\\.gradle\\caches",
           "titleCs": "Gradle caches",
           "titleEn": "Gradle caches",
           "impactCs": "Příští Gradle build stáhne závislosti znovu, první build bude pomalejší.",
-          "impactEn": "The next Gradle build downloads dependencies again; the first build is slower."
+          "impactEn": "The next Gradle build downloads dependencies again; the first build is slower.",
+          "processNames": ["java", "studio64", "idea64"]
         },
         {
           "path": "%USERPROFILE%\\.m2\\repository",
           "titleCs": "Maven repository",
           "titleEn": "Maven repository",
           "impactCs": "Příští Maven build stáhne závislosti znovu.",
-          "impactEn": "The next Maven build downloads dependencies again."
+          "impactEn": "The next Maven build downloads dependencies again.",
+          "processNames": ["java", "idea64"]
         }
       ]
     },
@@ -132,7 +138,7 @@
           "impactEn": "Clears old shaders. Games may compile shaders briefly on their next launch."
         },
         {
-          "path": "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\Cache",
+          "path": "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\*\\Cache",
           "titleCs": "Chrome – Cache",
           "titleEn": "Chrome – Cache",
           "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
@@ -140,7 +146,7 @@
           "processNames": ["chrome"]
         },
         {
-          "path": "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\Code Cache",
+          "path": "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\*\\Code Cache",
           "titleCs": "Chrome – Code Cache",
           "titleEn": "Chrome – Code Cache",
           "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
@@ -148,7 +154,7 @@
           "processNames": ["chrome"]
         },
         {
-          "path": "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\GPUCache",
+          "path": "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\*\\GPUCache",
           "titleCs": "Chrome – GPUCache",
           "titleEn": "Chrome – GPUCache",
           "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
@@ -156,7 +162,7 @@
           "processNames": ["chrome"]
         },
         {
-          "path": "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\Default\\Cache",
+          "path": "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\*\\Cache",
           "titleCs": "Edge – Cache",
           "titleEn": "Edge – Cache",
           "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
@@ -164,7 +170,7 @@
           "processNames": ["msedge"]
         },
         {
-          "path": "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\Default\\Code Cache",
+          "path": "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\*\\Code Cache",
           "titleCs": "Edge – Code Cache",
           "titleEn": "Edge – Code Cache",
           "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
@@ -172,7 +178,7 @@
           "processNames": ["msedge"]
         },
         {
-          "path": "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\Default\\GPUCache",
+          "path": "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\*\\GPUCache",
           "titleCs": "Edge – GPUCache",
           "titleEn": "Edge – GPUCache",
           "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
@@ -180,7 +186,7 @@
           "processNames": ["msedge"]
         },
         {
-          "path": "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\Default\\Cache",
+          "path": "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\*\\Cache",
           "titleCs": "Brave – Cache",
           "titleEn": "Brave – Cache",
           "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
@@ -188,7 +194,7 @@
           "processNames": ["brave"]
         },
         {
-          "path": "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\Default\\Code Cache",
+          "path": "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\*\\Code Cache",
           "titleCs": "Brave – Code Cache",
           "titleEn": "Brave – Code Cache",
           "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
@@ -196,7 +202,7 @@
           "processNames": ["brave"]
         },
         {
-          "path": "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\Default\\GPUCache",
+          "path": "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\*\\GPUCache",
           "titleCs": "Brave – GPUCache",
           "titleEn": "Brave – GPUCache",
           "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
@@ -204,7 +210,7 @@
           "processNames": ["brave"]
         },
         {
-          "path": "%LOCALAPPDATA%\\Vivaldi\\User Data\\Default\\Cache",
+          "path": "%LOCALAPPDATA%\\Vivaldi\\User Data\\*\\Cache",
           "titleCs": "Vivaldi – Cache",
           "titleEn": "Vivaldi – Cache",
           "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
@@ -212,7 +218,7 @@
           "processNames": ["vivaldi"]
         },
         {
-          "path": "%LOCALAPPDATA%\\Vivaldi\\User Data\\Default\\Code Cache",
+          "path": "%LOCALAPPDATA%\\Vivaldi\\User Data\\*\\Code Cache",
           "titleCs": "Vivaldi – Code Cache",
           "titleEn": "Vivaldi – Code Cache",
           "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
@@ -220,7 +226,7 @@
           "processNames": ["vivaldi"]
         },
         {
-          "path": "%LOCALAPPDATA%\\Vivaldi\\User Data\\Default\\GPUCache",
+          "path": "%LOCALAPPDATA%\\Vivaldi\\User Data\\*\\GPUCache",
           "titleCs": "Vivaldi – GPUCache",
           "titleEn": "Vivaldi – GPUCache",
           "impactCs": "Smaže pouze dočasné soubory stránek. Neodhlásí vás z účtů ani nesmaže hesla.",
